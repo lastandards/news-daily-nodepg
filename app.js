@@ -3,8 +3,9 @@ import consign from 'consign';
 
 const app = express();
 
-consign().include("db").then("routes").into(app);
-
-app.listen(3000, () => {
-  console.log('App rodando!');
-})
+consign()
+  .include("conecta_ai.js")
+  .then("config/middlewares.js")
+  .then("routes")
+  .then("config/boot.js")
+  .into(app);

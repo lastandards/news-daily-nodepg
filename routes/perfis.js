@@ -1,11 +1,10 @@
-import db from '../db';
-
 // Operações HTTP com os perfis (DEMO)
 module.exports = (app) => {
   app.get('/perfis', (req, res, next) => {
     
+    console.log(app.db);
     //Cria uma pesquisa pelos perfis. O segundo atributo é o parâmetro WHERE;
-    db.query('SELECT * FROM newsdaily.perfil', null, (err, result) => {
+    app.conecta_ai.consultar('SELECT * FROM newsdaily.perfil', null, (err, result) => {
       
       //Se houver algum erro, cai no if abaixo
       if(err) {
@@ -14,8 +13,8 @@ module.exports = (app) => {
       }
 
       //Ao realizar as pesquisas com sucesso...
-      res.send(result.rows);
+      res.json(result.rows);
 
     }); // FIM db.query
   }); // FIM app.get /perfis
-}
+};
