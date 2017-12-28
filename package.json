@@ -1,6 +1,6 @@
 {
   "name": "news-daily-nodepg",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "teste de api com node-postgres",
   "main": "app.js",
   "scripts": {
@@ -10,14 +10,15 @@
   },
   "author": "eu",
   "license": "MIT ",
-  "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.1"
-  },
   "dependencies": {
     "body-parser": "^1.18.2",
+    "consign": "^0.1.6",
     "express": "^4.16.2",
     "express-promise-router": "^2.0.0",
     "pg": "^7.4.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
   }
 }
