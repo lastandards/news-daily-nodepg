@@ -5,6 +5,7 @@ const app = express();
 
 consign()
   .include("conecta_ai.js")
+  .then("models")
   .then("config/middlewares.js")
   .then("routes")
   .then("config/boot.js")

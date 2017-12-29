@@ -1,4 +1,4 @@
-import { Client } from "pg";
+import { Client, Pool } from "pg";
 import dbconfig from "./config/manhattan_connection";
 
 let db = null;
@@ -8,10 +8,10 @@ module.exports = (app) => {
   if(!db) {
 
     console.log(dbconfig);
-    const client = new Client(dbconfig);
+    const piscina = new Pool(dbconfig);
 
-    client.connect();
-    client.query('SELECT VERSION()', (err, res) => {
+    //client.connect();
+    piscina.query('SELECT VERSION()', (err, res) => {
     
       // Se houver um erro, entra no if abaixo
       if(err) {
@@ -27,9 +27,8 @@ module.exports = (app) => {
     
     // Exporta o módulo `db`
     db = {
-      conn: client,
       consultar: (text, params, callback) => {
-        return client.query(text, params, callback);
+        return piscina.query(text, params, callback);
       }
     };
   }

@@ -1,20 +1,24 @@
 // Operações HTTP com os perfis (DEMO)
 module.exports = (app) => {
+  
+  const Perfis = app.models.perfil;
+
   app.get('/perfis', (req, res, next) => {
+    Perfis.findAll().then((resp) => {
+      console.log(resp.rows)
+      res.json(resp.rows);
+    });
+  });
+  app.get('/perfis/search', (req, res) => {
     
-    console.log(app.db);
-    //Cria uma pesquisa pelos perfis. O segundo atributo é o parâmetro WHERE;
-    app.conecta_ai.consultar('SELECT * FROM newsdaily.perfil', null, (err, result) => {
-      
-      //Se houver algum erro, cai no if abaixo
-      if(err) {
-        console.log("Falha ao realizar pesquisa. Descrição do erro:")
-        return next(err);
-      }
+    console.log(req.query);
 
-      //Ao realizar as pesquisas com sucesso...
-      res.json(result.rows);
-
-    }); // FIM db.query
-  }); // FIM app.get /perfis
-};
+    if(req.query.nome == null || req.query.nome === '') {
+      res.json({ mensagem: "manda alguma coisa aí, rapá!" });
+    }
+    
+    Perfis.pesquisarPorNome(req.query.nome).then(resp => { 
+      res.json(resp.rows); 
+    });
+  });
+}
