@@ -3,12 +3,13 @@ module.exports = (app) => {
   
   const Perfis = app.models.perfil;
 
-  app.get('/perfis', (req, res, next) => {
+  app.get('/perfis', (req, res) => {
     Perfis.findAll().then((resp) => {
-      console.log(resp.rows)
+      console.log(resp.rows);
       res.json(resp.rows);
     });
   });
+  
   app.get('/perfis/search', (req, res) => {
     
     console.log(req.query);
@@ -21,4 +22,4 @@ module.exports = (app) => {
       res.json(resp.rows); 
     });
   });
-}
+};
