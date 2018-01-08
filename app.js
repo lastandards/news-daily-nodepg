@@ -1,10 +1,12 @@
-import express from 'express';
 import consign from 'consign';
+import express from 'express';
 
 const app = express();
 
-consign()
+// A chave 'verbose' oculta os logs do consign
+consign({verbose: false})
   .include("conecta_ai.js")
+  .then("models")
   .then("config/middlewares.js")
   .then("routes")
   .then("config/boot.js")

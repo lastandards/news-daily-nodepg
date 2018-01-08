@@ -1,11 +1,11 @@
 {
   "name": "news-daily-nodepg",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "teste de api com node-postgres",
   "main": "app.js",
   "scripts": {
     "babel": "babel-node app.js",
-    "start": "nodemon --exec babel-node app.js",
+    "start": "eslint . --ext .js & nodemon --exec babel-node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "eu",
@@ -13,12 +13,16 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "consign": "^0.1.6",
+    "cors": "^2.8.4",
     "express": "^4.16.2",
     "express-promise-router": "^2.0.0",
     "pg": "^7.4.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.1"
+    "babel-eslint": "^8.1.2",
+    "babel-preset-env": "^1.6.1",
+    "eslint": "^4.14.0",
+    "eslint-plugin-babel": "^4.1.2"
   }
 }

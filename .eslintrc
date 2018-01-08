@@ -1,0 +1,69 @@
+{
+    "env": {
+        "es6": true,
+        "node": true
+    },
+    "extends": "eslint:recommended",
+    "plugins": ["babel"],
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "rules": {
+        "array-bracket-spacing": "warn",
+        "arrow-spacing": [
+            "warn",
+            {
+                "after": true,
+                "before": true
+            }
+        ],
+        "block-scoped-var": "warn",
+        "callback-return": "error",
+        "comma-spacing": [
+            "error",
+            {
+                "after": true,
+                "before": false
+            }
+        ],
+        "func-call-spacing": "warn",
+        "func-name-matching": "error",
+        "function-paren-newline": "error",
+        "indent": ["error", 2],
+        "indent-legacy": "off",
+        "key-spacing": "warn",
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "newline-after-var": [
+            "error",
+            "always"
+        ],
+        "no-alert": "error",
+        "no-catch-shadow": "error",
+        "no-console": "off",
+        "no-continue": "error",
+        "no-div-regex": "error",
+        "no-duplicate-imports": "error",
+        "no-else-return": "error",
+        "no-empty-function": "error",
+        "no-eq-null": "off",
+        "no-eval": "error",
+        "no-invalid-this": "error",
+        "no-path-concat": "warn",
+        "no-tabs": "warn",
+        "no-undefined": "error",
+        "no-unused-expressions": "warn",
+        "no-useless-call": "warn",
+        "no-useless-return": "warn",
+        "no-var": "warn",
+        "no-whitespace-before-property": "warn",
+        "semi": "warn",
+        "strict": "off",
+        "unicode-bom": [
+            "error",
+            "never"
+        ]
+    }
+}
