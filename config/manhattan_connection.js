@@ -1,6 +1,6 @@
 module.exports = {
   user: 'ndadmin',
-  host: '192.168.0.103',
+  host: '172.17.0.1',
   database: 'datand',
   password: '123',
   port: 5432

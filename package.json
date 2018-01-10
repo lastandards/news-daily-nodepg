@@ -1,28 +1,33 @@
 {
   "name": "news-daily-nodepg",
-  "version": "0.2.2",
-  "description": "teste de api com node-postgres",
+  "version": "0.3.0",
+  "description": "teste de um projeto de api com node-postgres",
   "main": "app.js",
   "scripts": {
     "babel": "babel-node app.js",
-    "start": "eslint . --ext .js & nodemon --exec babel-node app.js",
+    "dev": " npm run lint & nodemon --exec \"babel-node app.js\"",
+    "lint": "eslint .",
+    "start": "echo \"Warn: impl. futura. \" && exit 2",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "eu",
+  "author": "nós",
   "license": "MIT ",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "consign": "^0.1.6",
     "cors": "^2.8.4",
     "express": "^4.16.2",
     "express-promise-router": "^2.0.0",
+    "nodemailer": "^4.4.1",
     "pg": "^7.4.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-eslint": "^8.1.2",
+    "babel-eslint": "^8.2.1",
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.14.0",
-    "eslint-plugin-babel": "^4.1.2"
+    "eslint-plugin-babel": "^4.1.2",
+    "nodemon": "^1.14.9"
   }
 }
