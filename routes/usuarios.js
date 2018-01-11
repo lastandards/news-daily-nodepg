@@ -1,3 +1,5 @@
+import { Buffer } from "buffer";
+
 module.exports = app => {
   
   const Usuario = app.models.usuario;
@@ -31,5 +33,13 @@ module.exports = app => {
       return res.status(200).json(cracha.rows[0]);
     }
     return res.status(401).json({});
+  });
+
+  app.post("/valida-cadastro", (req, res) => {
+    console.log(req.query);
+    let usuMail = new Buffer(req.query.email, 'base64').toString();
+    let usuVal = new Buffer(req.query.validade, 'base64').toString();
+    //let dados = TODO Fazer depois, método para habilitar usuário
+    return res.status(501).json({ email: usuMail, validade: usuVal });
   });
 };

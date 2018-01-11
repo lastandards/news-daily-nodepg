@@ -1,13 +1,13 @@
 {
   "name": "news-daily-nodepg",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "teste de um projeto de api com node-postgres",
   "main": "app.js",
   "scripts": {
-    "babel": "babel-node app.js",
-    "dev": " npm run lint & nodemon --exec \"babel-node app.js\"",
-    "lint": "eslint .",
-    "start": "echo \"Warn: impl. futura. \" && exit 2",
+    "babel": "babel-node",
+    "dev": "nodemon app.js --exec \"npm run linter & npm run babel\"",
+    "linter": "eslint .",
+    "start": "echo \"Warn: impl. futura. \" && exit 0",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "nós",

@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
+import contaEmail from '../segredo-de-justica/conta-email';
 
 /*
  * TODO: Criar uma forma de inicializar o server em modo desenvolvedor com o ESLint 
@@ -7,59 +8,77 @@ import nodemailer from 'nodemailer';
  * TODO: Implementar utilitário de envio de e-mails de confirmação
  * TODO: Implementar a comparação de senhas bcrypt do metodo login (abaixo)
  * TODO: Verificar a preferência entre um cadastro completo (de primeira) e um semi-cadastro
+ * TODO: Discutir o uso (e a gravação do banco) dos ids de URL: http://g1.com.br/mundo/pessoa-vive-ate-120-a-54668/
+ * TODO: Verificar código da consulta/banco: uma hora funciona de jeito x, em outra de jeito y
  * */
 module.exports = app => {
   return {
     criar: (nome, senha, email, perfil_id) => {
       
+      let rc;
       let cadastro = 'INSERT INTO newsdaily.tmp_usuario (nome, senha, email, perfil_id) VALUES ($1, $2, $3, $4)';
       let vl_cadastro = [nome, senha, email, perfil_id];
       
-      /* BIZARRE SCENE da deep web... nem sei se isso realmente deveria existir 
-         Tempero da senha no formato de hash. */
+      /* Tempero da senha no formato de hash. */
       bcrypt.genSalt().then((sal_a_gosto) => {
         bcrypt.hash(vl_cadastro[1], sal_a_gosto).then((s) => {
           
           // Monta a query de insercao e pega o obj. com o resultado
           vl_cadastro[1] = s;
-          let dados; /* TODO: Verificar código da consulta: uma hora funciona de jeito x, em outra de jeito y */
-          app.conecta_ai.consultar(cadastro, vl_cadastro).catch(erro => {
-            dados = erro;
-          });
+          app.conecta_ai.consultar(cadastro, vl_cadastro).then(() => {
+            let consulta = 'SELECT u.nome AS nome, u.email AS email, u.data_validade AS validade \
+            FROM newsdaily.tmp_usuario AS u \
+            WHERE u.nome=$1 AND u.senha=$2 AND u.email=$3 AND u.perfil_id=$4';
+            app.conecta_ai.consultar(consulta, vl_cadastro).then(retorno => {
+              //console.log(retorno);
+              let dataVal = new Date(retorno.rows[0].validade);
+              console.log(dataVal.valueOf().toString());
+              let dadosConfirmacao = {
+                email: new Buffer(retorno.rows[0].email).toString('base64'),
+                validade: new Buffer(dataVal.valueOf().toString()).toString('base64') // tempo passado, em milisegundos, desde 1970 até a data registrada. Ex.: 1515907385099
+              };
+              console.log(dadosConfirmacao);
+              let transportadora = nodemailer.createTransport({
+                host: 'smtp-mail.outlook.com',
+                port: 587,
+                secure: false,
+                auth: contaEmail
+              });
 
-          console.log(dados);
-          // Se a insercao for bem sucedida, realiza o envio de email com os dados de acesso
-          if(!dados) {
+              let infoDestino = {
+                from: 'mail@server.com',
+                to: retorno.rows[0].email,
+                subject: `[NEWS DAILY] Bom dia sr. ${vl_cadastro[0]}!`,
+                text: `${retorno.rows[0].nome}, parabéns por ter se cadastrado em nosso sistema! Seus dados de acesso a ele são:<br/>Usuário:${retorno.rows[0].email} e Senha: ${senha}. Para usufruir dos benefícios, é necessário confirmar sua conta. Para isso, cole o seguinte link no seu navegador http://localhost:3000/valida-cadastro?email=${dadosConfirmacao.email}&validade=${dadosConfirmacao.validade}. Você tem o prazo de 72h para ativar sua conta.`,
+                html: `<h1>Bem vindo, ${retorno.rows[0].nome}!</h1><p>Agora você ficará por dentro das notícias mais quentes da sua cidade.^^ </p><p>Seus dados de acesso são:<br/>Usuário: ${retorno.rows[0].email}<br/>Senha: ${senha}</p><br/><a href="http://localhost:3000/valida-cadastro?email=${dadosConfirmacao.email}&validade=${dadosConfirmacao.validade}">Confirmar cadastro</a><br/><center><small>OBS: Você tem o prazo de 72h para ativar sua conta.</small></center><br/><small>Essa conta não é sua? <a href="#">Clique aqui</a> para cancelar notificações.</small>`
+              };
 
-            let transportadora = nodemailer.createTransport({
-              host: 'smtp.weeb.com',
-              port: 587,
-              secure: false,
-              auth: {
-                user: 'mySPAMBox@mailserver.com',
-                pass: '*******' 
-              }
+              transportadora.sendMail(infoDestino, (e, i) => {
+                console.log(`http://localhost:3000/valida-cadastro?email=${dadosConfirmacao.email}&validade=${dadosConfirmacao.validade}`);
+                if(e) {
+                  console.error(`Falha ao enviar mensagem para ${infoDestino.to}: ${e.name}\n${e.message}`);
+                  console.log('Realizando segunda tentativa...');
+                  transportadora.sendMail(infoDestino, (e, i) => {
+                    if(e) {
+                      console.error("Não foi possível realizar envio de e-mail!\nDetalhes do erro:");
+                      console.log(`\t${e.stack}`);
+                      rc = { code: 201, isCreated: true, sendEmail: false };
+                    }
+                  });
+                }
+                if (i) {
+                  console.info("Mensagem de e-mail enviada com sucesso ao destino.");
+                  console.info(i.response);
+                  rc = { code: 201, isCreated: true, sendEmail: true };
+                }
+              });
             });
-
-            transportadora.sendMail({
-              from: 'SPAMBox@mailserver.com',
-              to: 'otherSPAMBOX@mailserver.com',
-              subject: '[NEWS DAILY] Cadastro de um desconhecido...',
-              text: `Só passando pra avisar que ${vl_cadastro[0]} (${vl_cadastro[2]}) se cadastrou nessa joça.`,
-              html: '<h1>Olá, seja bem vindooo!!!</h1><p>Meu nome é Valdehcyr da Conceição e te escrevo para te parabenizar por ter se cadastrado em nosso sistema!^^</p><button onclick="javascript:alert(\'Pegou verus! Sefu, kkjjj!\');">Confirmar conta</button>'
-            }, (e, i) => {
-              if(e) {
-                console.log("FALHA AO ENVIAR MENSAGEM!!!");
-                console.log(e);
-              }
-              console.log("MENSAGEM ENVIADA COM SUCESSO!");
-              console.log(i);
-            });
-            return true;
-          }
-          return false;
-        });
-      });
+          }).catch(erro => {
+            rc = { code: 500, isCreated: false, sendEmail: false, data: erro };
+          }); //catch/then 1ª query
+        }); // then bcrypt.hash
+      }); // then bcrypt.genSalt
+      return rc;
     },
     
     alterar: () => {

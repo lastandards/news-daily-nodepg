@@ -36,6 +36,14 @@ build/Release
 node_modules/
 jspm_packages/
 
+# Segredo de Estado
+segredo-de-justica/
+confidential/
+confidencial/
+secrets/
+oculto/
+hidden/
+
 # Typescript v1 declaration files
 typings/
 
