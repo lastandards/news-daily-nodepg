@@ -10,9 +10,11 @@ module.exports = app => {
     if(!req.body.nome || !req.body.senha || !req.body.email || !req.body.perfil_id) {
       return res.status(400).json({ message: "Campos requeridos não informados!" });
     }
-    let dados = Usuario.criar(req.body.nome, req.body.senha, req.body.email, req.body.perfil_id);
-    console.log(dados);
-    return res.status((dados && dados != {} ? 201 : 500)).json(dados);
+    Usuario.criar(req.body.nome, req.body.senha, req.body.email, req.body.perfil_id).then((dados) => {
+      return res.status(dados && dados != {} ? 201 : 500).json(dados);
+    }).catch((ern) => {
+      return res.status(500).json(ern);
+    });
   });
 
   app.post("/login", (req, res) => {
@@ -44,16 +46,14 @@ module.exports = app => {
     let usuVal = new Buffer(req.query.validade, 'base64').toString();
     let dataValInfo =  new Date(Date.parse(usuVal));
   
-    console.log("=============================");
-    console.log(dataValInfo.getTime());
-    console.log(Date.now().valueOf());
-    console.log("=============================");
     if (dataValInfo.getTime() < Date.now().valueOf()) {
       return res.status(400).json({ isValidated: false });
     }
 
-    let resultadoValidacao = Usuario.validar(usuMail, dataValInfo);
-    //return res.status(501).json(dataValInfo);
-    return res.status((resultadoValidacao.code || 501)).json(resultadoValidacao);
+    Usuario.validar(usuMail, dataValInfo).then(resultadoValidacao => {
+      return res.status((resultadoValidacao.code || 501)).json(resultadoValidacao);
+    }).catch((er) => {
+      return res.status(500).json(er);
+    });
   });
 };

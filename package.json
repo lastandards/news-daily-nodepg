@@ -1,6 +1,6 @@
 {
   "name": "news-daily-nodepg",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "teste de um projeto de api com node-postgres",
   "main": "app.js",
   "scripts": {
