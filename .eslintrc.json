@@ -5,6 +5,7 @@
     },
     "extends": "eslint:recommended",
     "plugins": ["babel"],
+    "parser": "babel-eslint",
     "parserOptions": {
         "sourceType": "module"
     },
@@ -36,17 +37,13 @@
             "error",
             "unix"
         ],
-        "newline-after-var": [
-            "error",
-            "always"
-        ],
         "no-alert": "error",
         "no-catch-shadow": "error",
         "no-console": "off",
         "no-continue": "error",
         "no-div-regex": "error",
-        "no-duplicate-imports": "error",
-        "no-else-return": "error",
+        "no-duplicate-imports": "warn",
+        "no-else-return": "warn",
         "no-empty-function": "error",
         "no-eq-null": "off",
         "no-eval": "error",
@@ -55,11 +52,12 @@
         "no-tabs": "warn",
         "no-undefined": "error",
         "no-unused-expressions": "warn",
+        "no-unused-vars": "warn",
         "no-useless-call": "warn",
         "no-useless-return": "warn",
-        "no-var": "warn",
+        "no-var": "error",
         "no-whitespace-before-property": "warn",
-        "semi": "warn",
+        "semi": [ "error", "always" ],
         "strict": "off",
         "unicode-bom": [
             "error",

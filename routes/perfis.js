@@ -9,16 +9,16 @@ module.exports = (app) => {
       if(data.name === 'error') {
         // Retorna um JSON no seguinte formato:
         //   { error: <mensagem-de-erro> }
-        res.status(500).json(data);
+        return res.status(500).json(data);
       }
 
-      if(data.rows && data.rowCount < 1) {
-        res.status(404).json(data.rows);
+      if(data && data.length < 1) {
+        return res.status(404).json(data);
       }
 
-      if(data.rows && data.rowCount > 0) {
+      if(data && data.length > 0) {
         // Retorna os dados conforme o esperado
-        res.status(200).json(data.rows);
+        return res.status(200).json(data);
       }
 
     });
@@ -37,11 +37,11 @@ module.exports = (app) => {
       if(resp.name === 'error') {
         res.status(500).json(resp);
       }
-      else if(resp.rowCount && resp.rowCount < 1) {
-        res.status(404).json(resp.rows);
+      else if(resp && resp.length < 1) {
+        res.status(404).json(resp);
       }
       else {
-        res.status(200).json(resp.rows);
+        res.status(200).json(resp);
       }
     });
   });

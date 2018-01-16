@@ -9,16 +9,17 @@ module.exports = () => {
 
     const piscina = new Pool(dbconfig);
 
-    piscina.query('SELECT VERSION()', (err, res) => {
+    piscina.query('SELECT VERSION() AS versao, CURRENT_TIMESTAMP AS datahora', (err, res) => {
     
       // Se houver um erro, entra no if abaixo
       if(err) {
-        console.log("OoOoops! Um erro.");
-        console.log(err.message);
-        console.log("Stacktrace--");
-        console.log(err.stack);
-      }else {
-        console.log(res.rows[0].version);
+        // Ṕara evitar erro de many connections, será necessário por enquanto o uso de:
+        // - sudo -u ndadmin psql datand -c "<comando>", para rodar algum comando desejado
+        console.error("OoOoops! Um erro.");
+        console.error(err.message);
+      }
+      else {
+        console.info('Hora: ' + res.rows[0].datahora + '\nVersão do banco: ' + res.rows[0].versao);
       }
     });
     
