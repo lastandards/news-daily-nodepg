@@ -76,29 +76,42 @@ module.exports = app => {
                   rc = { code: 201, isCreated: true, sendEmail: true };
                 }
               });
+            }).catch(erro => {
+              console.log(erro);
             });
           }).catch(erro => {
             rc = { code: 500, isCreated: false, sendEmail: false, data: erro };
           }); //catch/then 1ª query
+        }).catch((err) => {
+          console.log(err);
         }); // then bcrypt.hash
+      }).catch((err) => {
+        console.log(err);
       }); // then bcrypt.genSalt
       return rc;
     },
 
     validar: (email, val) => {
-      let eAiManoEAi = { isValidated: false };
+      let eAiManoEAi;
       app.conecta_ai.consultar('SELECT * FROM newsdaily.tmp_usuario WHERE email = $1', [email]).then((rslt) => {
         if(!rslt.rows || rslt.rows.length < 1) {
+          console.log("caiu no primeiro if");
           eAiManoEAi = { code: 404, isValidated: false };
-          return;
+          return eAiManoEAi;
         }
         let dataValBanco = new Date(rslt.rows[0].data_validade);
         console.log(dataValBanco.getTime());
         console.log(val.getTime());
-        if(rslt.rows.length < 1) {
-          eAiManoEAi.isValidated = false;
+        if(val.getTime() > dataValBanco.getTime()) {
+          console.log("caiu no segndo if;");
+          eAiManoEAi = {
+            code: 410,
+            isValidated: false
+          };
+          return eAiManoEAi;
         }
-        eAiManoEAi.isValidated = rslt.rows[0];
+        console.log(rslt.rows[0]);
+        eAiManoEAi = rslt.rows[0];
       }).catch((poMano) => {
         console.log(poMano);
         eAiManoEAi = { deuRuim: true };

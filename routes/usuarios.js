@@ -11,7 +11,8 @@ module.exports = app => {
       return res.status(400).json({ message: "Campos requeridos não informados!" });
     }
     let dados = Usuario.criar(req.body.nome, req.body.senha, req.body.email, req.body.perfil_id);
-    return res.status((dados != {} ? 201 : 500)).json(dados);
+    console.log(dados);
+    return res.status((dados && dados != {} ? 201 : 500)).json(dados);
   });
 
   app.post("/login", (req, res) => {
@@ -53,6 +54,6 @@ module.exports = app => {
 
     let resultadoValidacao = Usuario.validar(usuMail, dataValInfo);
     //return res.status(501).json(dataValInfo);
-    return res.status((resultadoValidacao.isValidated?200:400)).json(resultadoValidacao);
+    return res.status((resultadoValidacao.code || 501)).json(resultadoValidacao);
   });
 };

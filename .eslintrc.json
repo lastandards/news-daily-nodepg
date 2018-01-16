@@ -34,7 +34,7 @@
         "indent-legacy": "off",
         "key-spacing": "warn",
         "linebreak-style": [
-            "error",
+            "off",
             "unix"
         ],
         "no-alert": "error",
