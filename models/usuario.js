@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
-import contaEmail from '../segredo-de-justica/conta-email';
+import { user as userFrom } from '../config/secret/mail-access';
+import sedexConfig from '../config/configuracao_sedex';
 
 /*
  * TODO: Criar uma forma de inicializar o server em modo desenvolvedor com o ESLint 
@@ -30,23 +31,26 @@ module.exports = app => {
             FROM newsdaily.tmp_usuario AS u \
             WHERE u.nome=$1 AND u.senha=$2 AND u.email=$3 AND u.perfil_id=$4';
             app.conecta_ai.consultar(consulta, vl_cadastro).then(retorno => {
-              //console.log(retorno);
-              let dataVal = new Date(retorno.rows[0].validade);
-              console.log(dataVal.valueOf().toString());
+              let dataBanco = new Date(Date.parse(retorno.rows[0].validade));
+              let dataVal = new Date();
+              dataVal.setUTCFullYear(dataBanco.getFullYear());
+              dataVal.setUTCMonth(dataBanco.getMonth());
+              dataVal.setUTCDate(dataBanco.getDate());
+              dataVal.setUTCHours(dataBanco.getHours());
+              dataVal.setUTCMinutes(dataBanco.getMinutes());
+              dataVal.setUTCSeconds(dataBanco.getSeconds());
+              dataVal.setUTCMilliseconds(dataBanco.getMilliseconds());
+              //console.log(dataVal.getUTCTime().toString());
+              //console.log(dataVal.toISOString());
               let dadosConfirmacao = {
                 email: new Buffer(retorno.rows[0].email).toString('base64'),
-                validade: new Buffer(dataVal.valueOf().toString()).toString('base64') // tempo passado, em milisegundos, desde 1970 até a data registrada. Ex.: 1515907385099
+                validade: new Buffer(dataVal.toISOString()).toString('base64') // tempo passado, em milisegundos, desde 1970 até a data registrada. Ex.: 1515907385099
               };
-              console.log(dadosConfirmacao);
-              let transportadora = nodemailer.createTransport({
-                host: 'smtp-mail.outlook.com',
-                port: 587,
-                secure: false,
-                auth: contaEmail
-              });
+              //console.log(dadosConfirmacao);
+              let transportadora = nodemailer.createTransport(sedexConfig);
 
               let infoDestino = {
-                from: 'mail@server.com',
+                from: userFrom,
                 to: retorno.rows[0].email,
                 subject: `[NEWS DAILY] Bom dia sr. ${vl_cadastro[0]}!`,
                 text: `${retorno.rows[0].nome}, parabéns por ter se cadastrado em nosso sistema! Seus dados de acesso a ele são:<br/>Usuário:${retorno.rows[0].email} e Senha: ${senha}. Para usufruir dos benefícios, é necessário confirmar sua conta. Para isso, cole o seguinte link no seu navegador http://localhost:3000/valida-cadastro?email=${dadosConfirmacao.email}&validade=${dadosConfirmacao.validade}. Você tem o prazo de 72h para ativar sua conta.`,
@@ -79,6 +83,27 @@ module.exports = app => {
         }); // then bcrypt.hash
       }); // then bcrypt.genSalt
       return rc;
+    },
+
+    validar: (email, val) => {
+      let eAiManoEAi = { isValidated: false };
+      app.conecta_ai.consultar('SELECT * FROM newsdaily.tmp_usuario WHERE email = $1', [email]).then((rslt) => {
+        if(!rslt.rows || rslt.rows.length < 1) {
+          eAiManoEAi = { code: 404, isValidated: false };
+          return;
+        }
+        let dataValBanco = new Date(rslt.rows[0].data_validade);
+        console.log(dataValBanco.getTime());
+        console.log(val.getTime());
+        if(rslt.rows.length < 1) {
+          eAiManoEAi.isValidated = false;
+        }
+        eAiManoEAi.isValidated = rslt.rows[0];
+      }).catch((poMano) => {
+        console.log(poMano);
+        eAiManoEAi = { deuRuim: true };
+      });
+      return eAiManoEAi;
     },
     
     alterar: () => {

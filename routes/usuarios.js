@@ -36,10 +36,23 @@ module.exports = app => {
   });
 
   app.post("/valida-cadastro", (req, res) => {
-    console.log(req.query);
+    if (!req.query.email || !req.query.validade) {
+      return res.status(400).json({ isValidated: false });
+    }
     let usuMail = new Buffer(req.query.email, 'base64').toString();
     let usuVal = new Buffer(req.query.validade, 'base64').toString();
-    //let dados = TODO Fazer depois, método para habilitar usuário
-    return res.status(501).json({ email: usuMail, validade: usuVal });
+    let dataValInfo =  new Date(Date.parse(usuVal));
+  
+    console.log("=============================");
+    console.log(dataValInfo.getTime());
+    console.log(Date.now().valueOf());
+    console.log("=============================");
+    if (dataValInfo.getTime() < Date.now().valueOf()) {
+      return res.status(400).json({ isValidated: false });
+    }
+
+    let resultadoValidacao = Usuario.validar(usuMail, dataValInfo);
+    //return res.status(501).json(dataValInfo);
+    return res.status((resultadoValidacao.isValidated?200:400)).json(resultadoValidacao);
   });
 };
