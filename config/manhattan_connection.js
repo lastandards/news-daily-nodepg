@@ -1,8 +1,8 @@
 module.exports = {
-  user: 'ndsysuser',
-  host: '172.17.0.1',
+  user: 'postgres',
+  host: 'localhost',
   database: 'datand',
-  password: '13579',
+  password: 'postgres',
   port: 5432,
   min: 2,
   max: 4/*,
