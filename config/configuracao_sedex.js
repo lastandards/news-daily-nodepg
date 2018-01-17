@@ -1,8 +1,8 @@
 import contaEmail from './secret/mail-access';
 
 module.exports = {
-  host: 'smtp-mail.outlook.com',
+  host: 'smtp.openmailbox.org',
   port: 587,
-  secure: false,
+  secure: true,
   auth: contaEmail
 };

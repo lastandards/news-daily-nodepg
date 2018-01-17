@@ -2,13 +2,11 @@ import bcrypt from 'bcrypt';
 import moduloDeEmail from '../utilitarios/email_module';
 
 /*
- * TODO: Criar uma forma de inicializar o server em modo desenvolvedor com o ESLint 
- * mostrando as mudanças a serem feitas depois de carregado o servidor;
- * TODO: Implementar utilitário de envio de e-mails de confirmação
+ * TODO: Criar uma forma de inicializar o server em modo desenvolvedor e em modo produção 
  * TODO: Implementar a comparação de senhas bcrypt do metodo login (abaixo)
- * TODO: Verificar a preferência entre um cadastro completo (de primeira) e um semi-cadastro
  * TODO: Discutir o uso (e a gravação do banco) dos ids de URL: http://g1.com.br/mundo/pessoa-vive-ate-120-a-54668/
  * TODO: Verificar código da consulta/banco: uma hora funciona de jeito x, em outra de jeito y
+ * TODO: Fazer debug nos formatos das datas Javascript em UTC e do CURRENT_TIMESTAMP do postgres
  * */
 module.exports = app => {
   return {
@@ -29,6 +27,7 @@ module.exports = app => {
             WHERE u.nome=$1 AND u.senha=$2 AND u.email=$3 AND u.perfil_id=$4';
             return app.conecta_ai.consultar(consulta, vl_cadastro).then(retorno => {
               let dataBanco = new Date(Date.parse(retorno.rows[0].validade));
+              //SELECT CURRENT_TIMESTAMP(0) = '2018-01-17T16:07:50';
               /*let dataVal = new Date();
               dataVal.setUTCFullYear(dataBanco.getFullYear());
               dataVal.setUTCMonth(dataBanco.getMonth());
@@ -54,7 +53,7 @@ module.exports = app => {
 
               console.log(
                 '\n===[LINK ENVIADO PARA O E-MAIL]====================\n%s\n===========================\n', 
-                `http://localhost:3000/valida-cadastro?email=${dadosConfirmacao.email}&validade=${dadosConfirmacao.validade}`
+                `http://localhost:3000/validacao?email=${dadosConfirmacao.email}&validade=${dadosConfirmacao.validade}`
               );
 
               if(!emailEnviado) {
@@ -110,7 +109,7 @@ module.exports = app => {
               return { codigo: 200, usuarioValidado: true, antigoRegistroExcluido: true, emailEnviado: true };
             }
             if(resultsDosFinalmentes.rowCount === 0) {
-              return { codigo: 200, usuarioValidado: true, antigoRegistroExcluido: true, emailEnviado: true };                
+              return { codigo: 200, usuarioValidado: true, antigoRegistroExcluido: false, emailEnviado: true };                
             }
 
           }).catch(err => {
@@ -143,33 +142,28 @@ module.exports = app => {
     },
 
     logar: (email, senha) => {
-      let putaqui = 'SELECT u.nome AS nome, u.email AS email, u.senha AS senha, u.situacao AS situacao, p.nome AS perfil_acessso, p.descricao AS descricao_perfil FROM newsdaily.usuario AS u INNER JOIN newsdaily.perfil AS p ON u.perfil_id = p.id_perfil WHERE email = $1';
-      let dados;
-      
-      app.conecta_ai.consultar(putaqui, [email]).then((usrdt) => {
-        dados = usrdt.rows[0];
+      let putaqui = 'SELECT u.nome AS nome, u.email AS email, u.senha AS senha, u.situacao AS situacao, p.nome AS perfil_acessso, p.descricao AS descricao_perfil FROM newsdaily.usuario AS u INNER JOIN newsdaily.perfil AS p ON u.perfil_id = p.id_perfil WHERE email = $1 AND situacao = true';
+      let informacoesValidas = app.conecta_ai.consultar(putaqui, [email]).then((dados) => {
+
+        if(dados.rows && dados.rowCount === 1) {
+          return bcrypt.compare(senha, dados.rows[0].senha).then((compat) => {
+            if(compat === true) {
+              delete dados.rows[0].senha;
+              return {
+                dadosValidos: compat,
+                data: dados.rows[0]
+              };
+            }
+            // retorna falso se senhas diferem
+            return { dadosValidos: compat };
+          });
+        }
+        // retorna falso se não for encontrado usuário ativo com o email informado
+        return { dadosValidos: false };
       }).catch(erro => {
         return erro;
       });
-
-      console.log(dados);
-      if(dados instanceof Array) {
-        /* presumimos que para ter chegado até aqui, é porque deu tudo certo */
-        console.log("instância de um array..");
-        console.log(dados);
-      }
-
-      if(dados != {} && dados != null) {
-        bcrypt.compare(senha, dados.senha).then((compat) => {
-          console.log(compat);
-          if(compat === true) {
-            delete dados.senha;
-            return dados;
-          }
-          return {};
-        });
-      }
-      return dados;
+      return informacoesValidas;
     }
   };
 };

@@ -17,28 +17,26 @@ module.exports = app => {
     });
   });
 
-  app.post("/login", (req, res) => {
-    let cracha = Usuario.logar(req.body.email, req.body.senha);
-    console.log(cracha.rows);
-    if(!cracha || cracha === 'erro'){
-      return res.status(500).json(cracha);
-    }
-
-    if(cracha === {}){
-      return res.status(404).send(false);
-    }
-
-    if(cracha && cracha.rowCount > 0 && cracha.rows[0].senha === req.body.senha) {
-      if (cracha.rows[0].senha) {
-        console.log("Não deveria, mas veio com a senha...");
-        delete cracha.rows[0].senha;
+  app.post("/autenticacao", (req, res) => {
+    Usuario.logar(req.body.email, req.body.senha).then((caraCracha) => {
+      if(caraCracha.name === 'erro'){
+        return res.status(500).json(caraCracha);
       }
-      return res.status(200).json(cracha.rows[0]);
-    }
-    return res.status(401).json({});
+  
+      if(caraCracha === {} || !caraCracha){
+        return res.status(404).json(caraCracha);
+      }
+  
+      if(caraCracha && !caraCracha.senha) {
+        return res.status(200).json(caraCracha);
+      }
+      return res.status(401).json({});
+    }).catch((e) => {
+      return res.status(500).json(e);
+    });
   });
 
-  app.post("/valida-cadastro", (req, res) => {
+  app.post("/validacao", (req, res) => {
     if (!req.query.email || !req.query.validade) {
       return res.status(400).json({ isValidated: false });
     }
