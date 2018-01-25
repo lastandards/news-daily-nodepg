@@ -1,0 +1,2 @@
+#sudo docker run --name "newsdaily-nodeserver" -p "3000:3000" --rm newsdaily:nodeserver
+sudo docker run --name "newsdaily-nodeserver" -p "3000:3000" -it --rm newsdaily:nodeserver

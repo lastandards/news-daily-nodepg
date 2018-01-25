@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# imagebuild - Instala os pacotes e configura o ambiente na imagem GNU/Linux da imagem Docker
+#
+# Site       : https://google.com/
+# Autor      : Fhelip Corrêa<fhecorrea@gmail.com>
+# Manutenção : Lucas Soares<lucas.systema@gmail.com>
+#
+# --------------------------------------------------
+# Este programa ainda se encontra em fase de testes
+# --------------------------------------------------
+#
+# Histórico  : 
+#    v0.1.0 2018-01-23, Fhelip Corrêa
+#      - Versão inicial
+#
+# Licença    : MIT 2.0
+#
+if [ $(sudo docker image ls | grep "newsdaily-nodeserver") ]; then
+  echo "A imagem existe, que bom.";
+else
+  echo "A imagem não existe. A criar ...";
+fi

@@ -7,7 +7,7 @@
     "babel": "babel-node",
     "dev": "nodemon app.js --exec \"npm run linter & npm run babel\"",
     "linter": "eslint .",
-    "start": "echo \"Warn: impl. futura. \" && exit 0",
+    "start": "nodemon app.js --exec \"npm run babel\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "nós",

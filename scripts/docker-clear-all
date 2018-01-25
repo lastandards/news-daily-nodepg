@@ -1,0 +1,4 @@
+# Remove TODOS os containers
+sudo docker rm $(sudo docker ps -a -q);
+# Remove TODAS as imagens
+sudo docker rmi $(sudo docker images -q);
